@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:share_memo_flutter/repository/echo_repository.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -27,6 +29,10 @@ class MemoListPage extends StatefulWidget {
 }
 
 class _MemoListPageState extends State<MemoListPage> {
+  // あとで定義
+  final EchoRepository echoRepository = EchoRepository();
+  String responseText = "まだ何も送っていません";
+
   List<dynamic> memos = [];
   bool isLoading = true;
 
@@ -37,14 +43,24 @@ class _MemoListPageState extends State<MemoListPage> {
   }
 
   Future<void> fetchMemos() async {
-    const apiUrl = 'http://10.0.2.2:8000/memos'; // FastAPIのURL
+    // const apiUrl = 'http://10.0.2.2:8000/memos'; // FastAPIのURL
+
+    final Map<String, dynamic> sampleData = {
+      "user": "test_user",
+      "memos": [
+        {"title": "メモ1", "content": "これはメモ1の内容です。"},
+        {"title": "メモ2", "content": "これはメモ2の内容です。"},
+        {"title": "メモ3", "content": "これはメモ3の内容です。"},
+      ],
+    };
 
     try {
-      final response = await http.get(Uri.parse(apiUrl));
+      final response = await echoRepository.sendJson(sampleData);
+      print(response.body);
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
         setState(() {
-          memos = data['memos'];
+          // final responseText = jsonDecode(response.body) as Map<String, dynamic>;
+          responseText = response.body;
           isLoading = false;
         });
       } else {
@@ -54,29 +70,44 @@ class _MemoListPageState extends State<MemoListPage> {
       debugPrint('Error: $e');
       setState(() {
         isLoading = false;
+        responseText = "エラー: $e";
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // return Scaffold(
+    //   appBar: AppBar(title: const Text('メモ一覧')),
+    //   body: isLoading
+    //       ? const Center(
+    //           child: CircularProgressIndicator(),
+    //         ) // ローディング中はローディングインジケーターを表示
+    //       : ListView.builder(
+    //           // ローディング済みはメモ一覧を表示
+    //           itemCount: memos.length,
+    //           itemBuilder: (context, index) {
+    //             final memo = memos[index];
+    //             return ListTile(
+    //               title: Text(memo['title']),
+    //               subtitle: Text(memo['content']),
+    //             );
+    //           },
+    //         ),
+    // );
+
     return Scaffold(
-      appBar: AppBar(title: const Text('メモ一覧')),
-      body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            ) // ローディング中はローディングインジケーターを表示
-          : ListView.builder(
-              // ローディング済みはメモ一覧を表示
-              itemCount: memos.length,
-              itemBuilder: (context, index) {
-                final memo = memos[index];
-                return ListTile(
-                  title: Text(memo['title']),
-                  subtitle: Text(memo['content']),
-                );
-              },
-            ),
+      appBar: AppBar(title: const Text('Echo Response')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(responseText),
+            const SizedBox(height: 20),
+            ElevatedButton(onPressed: fetchMemos, child: const Text('送信')),
+          ],
+        ),
+      ),
     );
   }
 }
