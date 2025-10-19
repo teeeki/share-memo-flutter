@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_memo_flutter/pages/memo_detail.dart';
 import 'package:share_memo_flutter/repository/echo_repository.dart';
 
 class MemoListPage extends StatefulWidget {
@@ -12,13 +13,19 @@ class _MemoListPageState extends State<MemoListPage> {
   final EchoRepository echoRepository = EchoRepository();
   String responseText = "まだ何も送っていません";
 
-  List<dynamic> memos = [];
-  bool isLoading = true;
+  // サンプルデータを作成（7件）
+  final List<Map<String, String>> memos = List.generate(7, (i) {
+    return {
+      'title': 'メモのタイトル ${i + 1}',
+      'user': 'ユーザ${i + 1}',
+      'summary': 'これはメモ${i + 1}の概要です。サンプルテキスト。',
+    };
+  });
 
   @override
   void initState() {
     super.initState();
-    fetchMemos();
+    // fetchMemos();
   }
 
   Future<void> fetchMemos() async {
@@ -40,7 +47,6 @@ class _MemoListPageState extends State<MemoListPage> {
         setState(() {
           // final responseText = jsonDecode(response.body) as Map<String, dynamic>;
           responseText = response.body;
-          isLoading = false;
         });
       } else {
         throw Exception('API Error: ${response.statusCode}');
@@ -48,7 +54,6 @@ class _MemoListPageState extends State<MemoListPage> {
     } catch (e) {
       debugPrint('Error: $e');
       setState(() {
-        isLoading = false;
         responseText = "エラー: $e";
       });
     }
@@ -56,34 +61,96 @@ class _MemoListPageState extends State<MemoListPage> {
 
   @override
   Widget build(BuildContext context) {
-    // return Scaffold(
-    //   appBar: AppBar(title: const Text('メモ一覧')),
-    //   body: isLoading
-    //       ? const Center(
-    //           child: CircularProgressIndicator(),
-    //         ) // ローディング中はローディングインジケーターを表示
-    //       : ListView.builder(
-    //           // ローディング済みはメモ一覧を表示
-    //           itemCount: memos.length,
-    //           itemBuilder: (context, index) {
-    //             final memo = memos[index];
-    //             return ListTile(
-    //               title: Text(memo['title']),
-    //               subtitle: Text(memo['content']),
-    //             );
-    //           },
-    //         ),
-    // );
-
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(responseText),
-            const SizedBox(height: 20),
-            ElevatedButton(onPressed: fetchMemos, child: const Text('送信')),
-          ],
+      appBar: AppBar(title: const Text('メモ一覧')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: ListView.builder(
+          itemCount: memos.length,
+          itemBuilder: (context, index) {
+            return _buildMemoCard(memos[index]);
+          },
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // 新規メモ作成ボタンの処理
+          fetchMemos();
+        },
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _buildMemoCard(Map<String, String> memo) {
+    return SizedBox(
+      width: double.infinity,
+      child: InkWell(
+        onTap: () {
+          // カードをタップで詳細ページへ遷移
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => MemoDetailPage()),
+          );
+        },
+        child: Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          clipBehavior: Clip.antiAliasWithSaveLayer, // 画像を丸角にする
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Columnの高さを子要素に合わせて最小化
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // タイトル
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: const Text(
+                  'メモのタイトル',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w200),
+                ),
+              ),
+
+              // ユーザ名
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(Icons.person, size: 16, color: Colors.grey),
+                    SizedBox(width: 8),
+                    Text(
+                      'ユーザ名',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w200,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // 概要
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(Icons.description, size: 16, color: Colors.grey),
+                    SizedBox(width: 8),
+                    Text(
+                      'メモの概要',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w200,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
