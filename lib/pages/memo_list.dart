@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:share_memo_flutter/models/memo_model.dart';
 import 'package:share_memo_flutter/pages/memo_detail.dart';
 import 'package:share_memo_flutter/repository/echo_repository.dart';
+import 'package:share_memo_flutter/repository/memo_repository.dart';
 
 class MemoListPage extends StatefulWidget {
   const MemoListPage({super.key});
@@ -10,59 +12,44 @@ class MemoListPage extends StatefulWidget {
 }
 
 class _MemoListPageState extends State<MemoListPage> {
+  // リポジトリのインスタンス化
   final EchoRepository echoRepository = EchoRepository();
-  String responseText = "まだ何も送っていません";
+  final MemoRepository memoRepository = MemoRepository();
 
-  // サンプルデータを作成（7件）
-  final List<Map<String, String>> memos = List.generate(7, (i) {
-    return {
-      'title': 'メモのタイトル ${i + 1}',
-      'user': 'ユーザ${i + 1}',
-      'summary': 'これはメモ${i + 1}の概要です。サンプルテキスト。',
-    };
-  });
+  List<MemoModel> memos = [];
 
   @override
   void initState() {
     super.initState();
-    // fetchMemos();
+    createMemos();
   }
 
-  Future<void> fetchMemos() async {
-    // const apiUrl = 'http://10.0.2.2:8000/memos'; // FastAPIのURL
-
-    final Map<String, dynamic> sampleData = {
-      "user": "test_user",
-      "memos": [
-        {"title": "メモ1", "content": "これはメモ1の内容です。"},
-        {"title": "メモ2", "content": "これはメモ2の内容です。"},
-        {"title": "メモ3", "content": "これはメモ3の内容です。"},
-      ],
-    };
+  Future<void> createMemos() async {
+    final MemoModel sampleData = MemoModel(
+      title: "サンプルメモ",
+      user: "test_user",
+      summary: "これはサンプルメモの概要です。",
+      content: "これはサンプルメモの内容です。",
+    );
 
     try {
-      final response = await echoRepository.sendJson(sampleData);
-      print(response.body);
-      if (response.statusCode == 200) {
-        setState(() {
-          // final responseText = jsonDecode(response.body) as Map<String, dynamic>;
-          responseText = response.body;
-        });
-      } else {
-        throw Exception('API Error: ${response.statusCode}');
-      }
+      final MemoModel memo = await memoRepository.createMemo(sampleData);
+      debugPrint('メモの作成に成功しました');
+      debugPrint('作成されたメモ: ${memo.title}');
+      debugPrint('ユーザ: ${memo.user}');
+      debugPrint('概要: ${memo.summary}');
+      setState(() {
+        memos.add(memo);
+      });
     } catch (e) {
       debugPrint('Error: $e');
-      setState(() {
-        responseText = "エラー: $e";
-      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('メモ一覧')),
+      appBar: AppBar(title: Text('hoge')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: ListView.builder(
@@ -75,14 +62,14 @@ class _MemoListPageState extends State<MemoListPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // 新規メモ作成ボタンの処理
-          fetchMemos();
+          createMemos();
         },
         child: const Icon(Icons.add),
       ),
     );
   }
 
-  Widget _buildMemoCard(Map<String, String> memo) {
+  Widget _buildMemoCard(MemoModel memo) {
     return SizedBox(
       width: double.infinity,
       child: InkWell(
@@ -106,8 +93,8 @@ class _MemoListPageState extends State<MemoListPage> {
               // タイトル
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: const Text(
-                  'メモのタイトル',
+                child: Text(
+                  '${memo.title}',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w200),
                 ),
               ),
@@ -117,11 +104,11 @@ class _MemoListPageState extends State<MemoListPage> {
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
+                  children: [
                     Icon(Icons.person, size: 16, color: Colors.grey),
                     SizedBox(width: 8),
                     Text(
-                      'ユーザ名',
+                      '${memo.user}',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w200,
@@ -136,11 +123,11 @@ class _MemoListPageState extends State<MemoListPage> {
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
+                  children: [
                     Icon(Icons.description, size: 16, color: Colors.grey),
                     SizedBox(width: 8),
                     Text(
-                      'メモの概要',
+                      '${memo.summary}',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w200,
