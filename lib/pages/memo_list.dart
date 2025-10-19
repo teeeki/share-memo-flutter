@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_memo_flutter/pages/memo_detail.dart';
 import 'package:share_memo_flutter/repository/echo_repository.dart';
 
 class MemoListPage extends StatefulWidget {
@@ -79,55 +80,72 @@ class _MemoListPageState extends State<MemoListPage> {
   Widget _buildMemoCard(Map<String, String> memo) {
     return SizedBox(
       width: double.infinity,
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        clipBehavior: Clip.antiAliasWithSaveLayer, // 画像を丸角にする
-        child: Column(
-          mainAxisSize: MainAxisSize.min, // Columnの高さを子要素に合わせて最小化
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // タイトル
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: const Text(
-                'メモのタイトル',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w200),
+      child: InkWell(
+        onTap: () {
+          // カードをタップで詳細ページへ遷移
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => MemoDetailPage()),
+          );
+        },
+        child: Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          clipBehavior: Clip.antiAliasWithSaveLayer, // 画像を丸角にする
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Columnの高さを子要素に合わせて最小化
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // タイトル
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: const Text(
+                  'メモのタイトル',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w200),
+                ),
               ),
-            ),
 
-            // ユーザ名
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(Icons.person, size: 16, color: Colors.grey),
-                  SizedBox(width: 8),
-                  Text(
-                    'ユーザ名',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w200),
-                  ),
-                ],
+              // ユーザ名
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(Icons.person, size: 16, color: Colors.grey),
+                    SizedBox(width: 8),
+                    Text(
+                      'ユーザ名',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w200,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
 
-            // 概要
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(Icons.description, size: 16, color: Colors.grey),
-                  SizedBox(width: 8),
-                  Text(
-                    'メモの概要',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w200),
-                  ),
-                ],
+              // 概要
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(Icons.description, size: 16, color: Colors.grey),
+                    SizedBox(width: 8),
+                    Text(
+                      'メモの概要',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w200,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
