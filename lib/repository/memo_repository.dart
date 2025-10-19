@@ -4,9 +4,9 @@ import 'package:share_memo_flutter/models/memo_model.dart';
 
 // MemoRepository: メモに関するデータ操作を行うリポジトリ
 class MemoRepository {
-  final MemoApi memoApi;
+  final MemoApi memoApi = MemoApi();
 
-  MemoRepository(this.memoApi);
+  MemoRepository();
 
   // メモ一覧の取得
   Future<List<MemoModel>> getMemos() async {
@@ -15,7 +15,7 @@ class MemoRepository {
   }
 
   // メモの新規作成
-  Future<void> createMemo(Map<String, dynamic> json) async {
-    await memoApi.createMemo(json);
+  Future<MemoModel> createMemo(Map<String, dynamic> json) async {
+    return await memoApi.createMemo(json);
   }
 }
