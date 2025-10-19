@@ -62,7 +62,7 @@ class _MemoListPageState extends State<MemoListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('メモ一覧')),
+      appBar: AppBar(title: Text('hoge')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: ListView.builder(

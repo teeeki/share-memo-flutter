@@ -18,7 +18,7 @@ class _MemoDetailPageState extends State<MemoDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('メモ一覧')),
+      appBar: AppBar(title: const Text('hoge')),
       body: Center(
         child: Card(
           elevation: 4,
