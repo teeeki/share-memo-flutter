@@ -12,52 +12,25 @@ class MemoListPage extends StatefulWidget {
 }
 
 class _MemoListPageState extends State<MemoListPage> {
+  // リポジトリのインスタンス化
   final EchoRepository echoRepository = EchoRepository();
   final MemoRepository memoRepository = MemoRepository();
-  String? user;
-  String? title;
-  String? summary;
 
-  // サンプルデータを作成（7件）
-  final List<Map<String, String>> memos = List.generate(7, (i) {
-    return {
-      'title': 'メモのタイトル ${i + 1}',
-      'user': 'ユーザ${i + 1}',
-      'summary': 'これはメモ${i + 1}の概要です。サンプルテキスト。',
-    };
-  });
+  List<MemoModel> memos = [];
 
   @override
   void initState() {
     super.initState();
-    // fetchMemos();
+    createMemos();
   }
 
   Future<void> createMemos() async {
-    final Map<String, dynamic> sampleData = {
-      "title": "サンプルメモ",
-      "user": "test_user",
-      "summary": "これはサンプルメモの概要です。",
-      "content": "これはサンプルメモの内容です。",
-    };
-
-    // try {
-    //   final response = await echoRepository.sendJson(sampleData);
-    //   print(response.body);
-    //   if (response.statusCode == 200) {
-    //     setState(() {
-    //       // final responseText = jsonDecode(response.body) as Map<String, dynamic>;
-    //       responseText = response.body;
-    //     });
-    //   } else {
-    //     throw Exception('API Error: ${response.statusCode}');
-    //   }
-    // } catch (e) {
-    //   debugPrint('Error: $e');
-    //   setState(() {
-    //     responseText = "エラー: $e";
-    //   });
-    // }
+    final MemoModel sampleData = MemoModel(
+      title: "サンプルメモ",
+      user: "test_user",
+      summary: "これはサンプルメモの概要です。",
+      content: "これはサンプルメモの内容です。",
+    );
 
     try {
       final MemoModel memo = await memoRepository.createMemo(sampleData);
@@ -66,9 +39,7 @@ class _MemoListPageState extends State<MemoListPage> {
       debugPrint('ユーザ: ${memo.user}');
       debugPrint('概要: ${memo.summary}');
       setState(() {
-        title = memo.title;
-        user = memo.user;
-        summary = memo.summary;
+        memos.add(memo);
       });
     } catch (e) {
       debugPrint('Error: $e');
@@ -98,7 +69,7 @@ class _MemoListPageState extends State<MemoListPage> {
     );
   }
 
-  Widget _buildMemoCard(Map<String, String> memo) {
+  Widget _buildMemoCard(MemoModel memo) {
     return SizedBox(
       width: double.infinity,
       child: InkWell(
@@ -123,7 +94,7 @@ class _MemoListPageState extends State<MemoListPage> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: Text(
-                  '$title',
+                  '${memo.title}',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w200),
                 ),
               ),
@@ -137,7 +108,7 @@ class _MemoListPageState extends State<MemoListPage> {
                     Icon(Icons.person, size: 16, color: Colors.grey),
                     SizedBox(width: 8),
                     Text(
-                      '$user',
+                      '${memo.user}',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w200,
@@ -156,7 +127,7 @@ class _MemoListPageState extends State<MemoListPage> {
                     Icon(Icons.description, size: 16, color: Colors.grey),
                     SizedBox(width: 8),
                     Text(
-                      '$summary',
+                      '${memo.summary}',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w200,
