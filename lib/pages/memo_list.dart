@@ -10,8 +10,8 @@ class MemoListPage extends StatefulWidget {
 }
 
 class _MemoListPageState extends State<MemoListPage> {
-  // final EchoRepository echoRepository = EchoRepository();
-  // String responseText = "まだ何も送っていません";
+  final EchoRepository echoRepository = EchoRepository();
+  String responseText = "まだ何も送っていません";
 
   // サンプルデータを作成（7件）
   final List<Map<String, String>> memos = List.generate(7, (i) {
@@ -28,38 +28,36 @@ class _MemoListPageState extends State<MemoListPage> {
     // fetchMemos();
   }
 
-  // Future<void> fetchMemos() async {
-  //   // const apiUrl = 'http://10.0.2.2:8000/memos'; // FastAPIのURL
+  Future<void> fetchMemos() async {
+    // const apiUrl = 'http://10.0.2.2:8000/memos'; // FastAPIのURL
 
-  //   final Map<String, dynamic> sampleData = {
-  //     "user": "test_user",
-  //     "memos": [
-  //       {"title": "メモ1", "content": "これはメモ1の内容です。"},
-  //       {"title": "メモ2", "content": "これはメモ2の内容です。"},
-  //       {"title": "メモ3", "content": "これはメモ3の内容です。"},
-  //     ],
-  //   };
+    final Map<String, dynamic> sampleData = {
+      "user": "test_user",
+      "memos": [
+        {"title": "メモ1", "content": "これはメモ1の内容です。"},
+        {"title": "メモ2", "content": "これはメモ2の内容です。"},
+        {"title": "メモ3", "content": "これはメモ3の内容です。"},
+      ],
+    };
 
-  //   try {
-  //     final response = await echoRepository.sendJson(sampleData);
-  //     print(response.body);
-  //     if (response.statusCode == 200) {
-  //       setState(() {
-  //         // final responseText = jsonDecode(response.body) as Map<String, dynamic>;
-  //         responseText = response.body;
-  //         isLoading = false;
-  //       });
-  //     } else {
-  //       throw Exception('API Error: ${response.statusCode}');
-  //     }
-  //   } catch (e) {
-  //     debugPrint('Error: $e');
-  //     setState(() {
-  //       isLoading = false;
-  //       responseText = "エラー: $e";
-  //     });
-  //   }
-  // }
+    try {
+      final response = await echoRepository.sendJson(sampleData);
+      print(response.body);
+      if (response.statusCode == 200) {
+        setState(() {
+          // final responseText = jsonDecode(response.body) as Map<String, dynamic>;
+          responseText = response.body;
+        });
+      } else {
+        throw Exception('API Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Error: $e');
+      setState(() {
+        responseText = "エラー: $e";
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +71,13 @@ class _MemoListPageState extends State<MemoListPage> {
             return _buildMemoCard(memos[index]);
           },
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // 新規メモ作成ボタンの処理
+          fetchMemos();
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
